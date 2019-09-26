@@ -11,12 +11,48 @@ class CharacterForm extends Component {
       image: '',
       physique: '',
       hair: ''
+    },
+    form: {
+      title: '',
+      button: '', 
+      endpoint: ''
     }
   };
 
+  componentDidMount() {
+    const { params } = this.props.match
+    if (params.id) {
+      axios.get(`http://localhost:3000/api/characters/${params.id}`)
+      .then(({ data: { character }}) => this.setState({ character }))
+      this.setState({ form: { title: 'Edit', button: 'Edit', endpoint: `/characters/${params.id}` } })
+    } else {
+      this.setState({ form: { title: 'Create', button: 'Create', endpoint: '/characters/' } })
+    }
+  }
+
   onSubmit = (e) => {
     e.preventDefault();
-    const { character } = this.state;
+    const { character, form } = this.state;
+    if (form.title === 'Edit') {
+      axios.put(`http://localhost:3000/api/${form.endpoint}`, character)
+      .then(({ data }) => {
+        console.log(data);
+        this.setState({
+          character: {
+            name: '',
+            gender: '',
+            ethnicity: '',
+            image: '',
+            physique: '',
+            hair: ''
+          }
+        });
+        this.props.history.push('/characters')
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    } else {
     axios
       .post('http://localhost:3000/api/characters', character)
       .then(({ data }) => {
@@ -31,10 +67,12 @@ class CharacterForm extends Component {
             hair: ''
           }
         });
+        this.props.history.push('/characters')
       })
       .catch((error) => {
         console.log(error);
       });
+    }
   };
 
   handleInputs = (e) => {
@@ -45,7 +83,8 @@ class CharacterForm extends Component {
   };
 
   render() {
-    const { character } = this.state;
+    const { character, form } = this.state;
+    console.log(this.props)
     return (
       <div
         style={{
@@ -57,7 +96,7 @@ class CharacterForm extends Component {
           background: 'peru'
         }}
       >
-        <Card title="Create character" style={{ width: '50vw' }}>
+        <Card title={form.title} style={{ width: '50vw' }}>
           <Form onSubmit={this.onSubmit}>
             <Form.Item>
               <Input value={character.name} onChange={this.handleInputs} type="text" name="name" placeholder="Name" />
@@ -102,7 +141,7 @@ class CharacterForm extends Component {
               />
             </Form.Item>
             <Form.Item>
-              <Input type="submit" value="Create" />
+              <Input type="submit" value={form.button} />
             </Form.Item>
           </Form>
         </Card>

@@ -12,6 +12,7 @@ const Router = () => (
       <Route exact path="/characters/create" component={CharacterForm} />
       <Route exact path="/characters" component={CharacterAll} />
       <Route exact path="/characters/random" component={CharacterRandom} />
+      <Route exact path="/characters/edit/:id" component={CharacterForm} />
     </Switch>
   </BrowserRouter>
 );
